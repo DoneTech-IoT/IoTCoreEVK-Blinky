@@ -6,9 +6,12 @@
 
 #define TAG "Blinky"
 
-#define LED_RED 16
-#define LED_GREEN 15
-#define LED_BLUE 17
+#define GPIO_LED_GREEN  15  // GPIO15
+#define GPIO_LED_RED    16  // GPIO16
+#define GPIO_LED_BLUE   17  // GPIO17 
+
+#define RGB_LED_ON      0   // LED is Common Anode
+#define RGB_LED_OFF     1   // LED is Common Anode
 
 typedef enum
 {
@@ -22,14 +25,14 @@ typedef enum
     Off = 7
 } RGBColor_t;
 
-uint8_t RedLED = 0;
-uint8_t GreenLED = 0;
-uint8_t BlueLED = 0;
+uint8_t RedLedState = 0;
+uint8_t GreenLedState = 0;
+uint8_t BlueLedState = 0;
 
 gpio_config_t io_conf = {
     .intr_type = GPIO_INTR_DISABLE,
     .mode = GPIO_MODE_OUTPUT,
-    .pin_bit_mask = (1ULL << LED_RED) | (1ULL << LED_GREEN) | (1ULL << LED_BLUE),
+    .pin_bit_mask = (1ULL << GPIO_LED_RED) | (1ULL << GPIO_LED_GREEN) | (1ULL << GPIO_LED_BLUE),
     .pull_down_en = GPIO_PULLUP_DISABLE,
     .pull_up_en = GPIO_PULLUP_DISABLE,
 };
@@ -44,54 +47,54 @@ void SetRGBColor(RGBColor_t RGBColor)
     switch (RGBColor)
     {
         case(Red):
-            RedLED = 1;
-            GreenLED = 0;
-            BlueLED = 0;
+            RedLedState = RGB_LED_ON;
+            GreenLedState = RGB_LED_OFF;
+            BlueLedState = RGB_LED_OFF;
             break;
         case(Green):
-            RedLED = 0;
-            GreenLED = 1;
-            BlueLED = 0;
+            RedLedState = RGB_LED_OFF;
+            GreenLedState = RGB_LED_ON;
+            BlueLedState = RGB_LED_OFF;
             break;
         case(Blue):
-            RedLED = 0;
-            GreenLED = 0;
-            BlueLED = 1;
+            RedLedState = RGB_LED_OFF;
+            GreenLedState = RGB_LED_OFF;
+            BlueLedState = RGB_LED_ON;
             break;
         case(Yellow):            
-            RedLED = 1;
-            GreenLED = 1;
-            BlueLED = 0;
+            RedLedState = RGB_LED_ON;
+            GreenLedState = RGB_LED_ON;
+            BlueLedState = RGB_LED_OFF;
             break;
         case(Cyan):
-            RedLED = 0;
-            GreenLED = 1;
-            BlueLED = 1;
+            RedLedState = RGB_LED_OFF;
+            GreenLedState = RGB_LED_ON;
+            BlueLedState = RGB_LED_ON;
             break;
         case(Magenta):
-            RedLED = 1;
-            GreenLED = 0;
-            BlueLED = 1;
+            RedLedState = RGB_LED_ON;
+            GreenLedState = RGB_LED_OFF;
+            BlueLedState = RGB_LED_ON;
             break;
         case(White):
-            RedLED = 1;
-            GreenLED = 1;
-            BlueLED = 1;
+            RedLedState = RGB_LED_ON;
+            GreenLedState = RGB_LED_ON;
+            BlueLedState = RGB_LED_ON;
             break;
         case(Off):
-            RedLED = 0;
-            GreenLED = 0;
-            BlueLED = 0;
+            RedLedState = RGB_LED_OFF;
+            GreenLedState = RGB_LED_OFF;
+            BlueLedState = RGB_LED_OFF;
             break;
         default:
-            RedLED = 0;
-            GreenLED = 0;
-            BlueLED = 0;
+            RedLedState = RGB_LED_OFF;
+            GreenLedState = RGB_LED_OFF;
+            BlueLedState = RGB_LED_OFF;
             break;
     }
-        gpio_set_level(LED_RED, !RedLED);
-        gpio_set_level(LED_GREEN, !GreenLED);
-        gpio_set_level(LED_BLUE, !BlueLED);
+        gpio_set_level(GPIO_LED_RED, RedLedState);
+        gpio_set_level(GPIO_LED_GREEN, GreenLedState);
+        gpio_set_level(GPIO_LED_BLUE, BlueLedState);
 }
 
 /*
@@ -101,12 +104,12 @@ void SetRGBColor(RGBColor_t RGBColor)
 */
 void ResetRGBColor()
 {
-    RedLED = 0;
-    GreenLED = 0;
-    BlueLED = 0;
-    gpio_set_level(LED_RED, !RedLED);
-    gpio_set_level(LED_GREEN, !GreenLED);
-    gpio_set_level(LED_BLUE, !BlueLED);
+    RedLedState = RGB_LED_OFF;
+    GreenLedState = RGB_LED_OFF;
+    BlueLedState = RGB_LED_OFF;
+    gpio_set_level(GPIO_LED_RED, RedLedState);
+    gpio_set_level(GPIO_LED_GREEN, GreenLedState);
+    gpio_set_level(GPIO_LED_BLUE, BlueLedState);
 }
 
 /*
@@ -120,11 +123,10 @@ void app_main(void)
 
     // configure the GPIO
     gpio_config(&io_conf);
-    gpio_set_direction(LED_BLUE, GPIO_MODE_OUTPUT);
-    gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
-    gpio_set_direction(LED_RED, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_LED_BLUE, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_LED_GREEN, GPIO_MODE_OUTPUT);
+    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_OUTPUT);
 
-    ESP_LOGI(TAG, "Now starts to blink!");
     while(1)
     {
         SetRGBColor(Red);
